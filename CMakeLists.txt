@@ -1,8 +1,8 @@
-cmake_minimum_required(VERSION 3.14..3.24)
+cmake_minimum_required(VERSION 3.24)
 
-project( MyProject 
-  VERSION 0.0.0
-  DESCRIPTION "The Template Project"
+project( Flappy 
+  VERSION 0.0.1
+  DESCRIPTION "Flappy Bird Clone"
   LANGUAGES CXX C )
 
 set(CMAKE_CXX_STANDARD 20) # not recommended, but who cares.
@@ -18,14 +18,14 @@ if(MSVC)
   set(CMAKE_STATIC_LINKER_FLAGS_RELEASE "${CMAKE_STATIC_LINKER_FLAGS_RELEASE} /DEBUG")
 endif()
 
-include(CTest)
 include(FetchContent)
+include(CTest)
 
 include(cmake/group_filter.cmake)
+include(cmake/utils.cmake)
 
 add_subdirectory(3rd-party)
-add_subdirectory(app)     # set a desirable name
-add_subdirectory(library) # set a desirable name
+add_subdirectory(flappy-game)
 add_subdirectory(tools)
 add_subdirectory(tests)
 

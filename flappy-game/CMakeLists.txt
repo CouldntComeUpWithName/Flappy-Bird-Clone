@@ -1,4 +1,4 @@
-set(EXECUTABLE_NAME app)
+set(EXECUTABLE_NAME flappy)
 
 add_executable(${EXECUTABLE_NAME})
 
@@ -6,7 +6,8 @@ file(GLOB_RECURSE SOURCES src/*)
 file(GLOB_RECURSE RESOURCES res/*)
 
 target_sources(${EXECUTABLE_NAME} PRIVATE ${SOURCES} PRIVATE ${RESOURCES})
-target_link_libraries(${EXECUTABLE_NAME} PRIVATE library)
+
+target_link_libraries(${EXECUTABLE_NAME} PRIVATE glm PRIVATE SDL3::SDL3 PRIVATE stb)
 
 if(MSVC)
   set_property(DIRECTORY ${CMAKE_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT ${EXECUTABLE_NAME})
