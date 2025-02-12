@@ -2,23 +2,30 @@
 
 #include <chrono>
 #include <iostream>
-#include <stb_image.h>
+
+#include "assets.hpp"
+#include "asset_manager.hpp"
+
+namespace flappy
+{
+  using texture_manager = asset_manager<texture_type, sdl::texture>;
+}
 
 flappy::game::game()
 {
   assert(SDL_Init(SDL_INIT_VIDEO));
   
-  m_main_window = SDL_CreateWindow(m_appdata.title.c_str(), m_appdata.screen_width,
-    m_appdata.screen_height, 0);
+  m_main_window = sdl::window { 
+    SDL_CreateWindow(m_appdata.title.c_str(), m_appdata.screen_width, m_appdata.screen_height, 0) 
+  };
   
   assert(m_main_window && "SDL_APP_FAILURE");
 
-  m_renderer = SDL_CreateRenderer(m_main_window, nullptr);
+  m_renderer = sdl::renderer{ SDL_CreateRenderer(m_main_window.get(), nullptr) };
 
   assert(m_renderer && "Uninitialized renderer");
 
   load_assets();
-
 }
 
 void flappy::game::run()
@@ -89,13 +96,13 @@ void flappy::game::update(float dt)
 
 void flappy::game::render()
 {
-  SDL_RenderClear(m_renderer);
+  SDL_RenderClear(m_renderer.get());
 
   auto dest = SDL_FRect{ .x = m_bird.position.x, .y = m_bird.position.y, .w = m_appdata.screen_width * 0.10f, .h = m_appdata.screen_width * 0.10f };
 
-  SDL_RenderTexture(m_renderer, m_background.sprite.texture, nullptr, nullptr);
+  SDL_RenderTexture(m_renderer.get(), m_background.sprite.texture, nullptr, nullptr);
 
-  SDL_RenderTexture(m_renderer, m_bird.sprite.texture, &m_bird.sprite.rect, &dest);
+  SDL_RenderTexture(m_renderer.get(), m_bird.sprite.texture, &m_bird.sprite.rect, &dest);
 
   if (m_paused)
   {
@@ -103,37 +110,23 @@ void flappy::game::render()
   }
   // draw the score after
 
-  SDL_RenderPresent(m_renderer);
+  SDL_RenderPresent(m_renderer.get());
 }
 
 void flappy::game::load_assets()
 {
-  //TODO: do more flexible asset loading
-  int width{};
-  int height{};
-  int channels{};
-  auto* birds_image = stbi_load("../../flappy-game/res/Birds.png", &width, &height, &channels, 0);
+  m_bird.sprite.texture = texture_manager::load(texture_type::BIRD_SHEET, 
+     load_texture(m_renderer, "../../flappy-game/res/Birds.png")).get();
   
-  assert(birds_image);
-  
-  SDL_Surface* surface = SDL_CreateSurfaceFrom(width, height, SDL_PIXELFORMAT_RGBA32, birds_image, width * channels);
-  m_bird.sprite.texture = SDL_CreateTextureFromSurface(m_renderer, surface);
-  SDL_SetTextureScaleMode(m_bird.sprite.texture, SDL_SCALEMODE_NEAREST);
-
-  auto* bg = stbi_load("../../flappy-game/res/default-bg-day.png", &width, &height, &channels, 0);
-  SDL_Surface* bg_surface = SDL_CreateSurfaceFrom(width, height, SDL_PIXELFORMAT_RGBA32, bg, width * channels);
-  m_background.sprite.texture = SDL_CreateTextureFromSurface(m_renderer, bg_surface);
-  SDL_SetTextureScaleMode(m_background.sprite.texture, SDL_SCALEMODE_NEAREST);
+  m_background.sprite.texture = texture_manager::load(texture_type::VANILLA_BACKGROUND,
+    load_texture(m_renderer, "../../flappy-game/res/default-bg-day.png")).get();
 
   m_bird.sprite.rect = { .x = 0, .y = 0, .w = 16, .h = 16 };
-  m_bird.velocity = { 0.f, 0.f };
+  m_bird.velocity = { 1.f, 1.f };
   m_bird.position = { (m_appdata.screen_width - (m_bird.sprite.rect.w * 5)) / 2.f, (m_appdata.screen_height - m_bird.sprite.rect.h) / 2.f };
-
 }
 
 flappy::game::~game()
 {
-  SDL_DestroyWindow(m_main_window);
-  SDL_DestroyRenderer(m_renderer);
-  SDL_Quit();
+  SDL_Quit(); 
 }

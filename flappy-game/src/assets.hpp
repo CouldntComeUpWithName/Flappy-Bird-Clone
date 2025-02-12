@@ -2,14 +2,14 @@
 
 namespace flappy
 {
-  enum class texture
+  enum class texture_type
   {
     BIRD_SHEET,
     VANILLA_BACKGROUND,
     VANILLA_PIPE,
   };
 
-  enum class sound
+  enum class sound_type
   {
     FLAP,
     FALL,

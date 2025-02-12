@@ -1,8 +1,11 @@
 #pragma once
 
-#include<memory>
-#include<cstdint>
-#include<cassert>
+#include "fwd.hpp"
+
+#include <memory>
+#include <cstdint>
+#include <cassert>
+#include <string>
 
 namespace flappy
 {
