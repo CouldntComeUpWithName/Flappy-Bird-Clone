@@ -7,17 +7,35 @@
 
 namespace flappy
 {
-  namespace detail
-  {
-    struct entity_components
-    {
-      sprite_sheet sprite;
-      glm::vec2 velocity;
-      glm::vec2 position;
-      SDL_FRect collider;
-    };
-  }
+  // this is so fucked up, rearrangement is needed immediately
   
-  using entity_id = uint64_t;
-  using entity = detail::entity_components;
+  // comprises the all essential components
+  struct basic_entity
+  {
+    glm::vec2 position;
+    SDL_FRect collider;
+  };
+
+  struct movable
+  {
+    glm::vec2 velocity;
+  };
+
+  struct renderable
+  {
+    sprite_sheet sprite;
+  };
+
+  struct bird 
+  : basic_entity, movable, renderable
+  {
+    
+  };
+
+  struct pipe 
+  : basic_entity
+  {
+
+  };
+
 }
