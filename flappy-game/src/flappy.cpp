@@ -147,7 +147,6 @@ void flappy::game::update(float dt)
       if (physics::collides(m_bird.collider, lower_pipe.collider)
         || physics::collides(m_bird.collider, upper_pipe.collider))
       {
-        m_running = false;
         // TODO: implement game over
       }
     }
@@ -172,10 +171,10 @@ void flappy::game::render()
 
   SDL_RenderTexture(m_renderer.get(), m_background.sprite.texture, nullptr, nullptr);
   
-  SDL_RenderTexture(m_renderer.get(), m_bird.sprite.texture, &m_bird.sprite.rect, &dest);
-
   m_pipeline.render(m_renderer);
   
+  SDL_RenderTexture(m_renderer.get(), m_bird.sprite.texture, &m_bird.sprite.rect, &dest);
+
   if (m_toggle_db_info)
   {
     render_deb_info();
@@ -187,16 +186,37 @@ void flappy::game::render()
   }
   // draw the score after
   
-  
-
   SDL_RenderPresent(m_renderer.get());
 }
 
 void flappy::game::render_deb_info()
 {
+  SDL_Color color{ 255, 0, 255, 255 };
+  SDL_SetRenderDrawColor(m_renderer.get(), color.r, color.g, color.b, color.a);
+
+  if(m_paused)
+  {
+    //TODO: render the button clickable areas
+  }
+  else
+  {
+    SDL_FRect bird_boundary = {
+      m_bird.position.x,
+      m_bird.position.y,
+      m_bird.collider.w,
+      m_bird.collider.h,
+    };
+    
+    SDL_RenderRect(m_renderer.get(), &bird_boundary);
+    
+    for (const auto& [lower, upper] : m_pipeline)
+    {
+      SDL_RenderRect(m_renderer.get(), &lower.collider);
+      SDL_RenderRect(m_renderer.get(), &upper.collider);
+    }
+  }
   
 }
-
 
 flappy::game::~game()
 {
