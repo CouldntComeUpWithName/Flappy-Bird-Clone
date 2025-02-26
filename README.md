@@ -6,8 +6,8 @@ A **FlappyBird** clone written in C++20. Clone, build, and play!
 Make sure to use --recursive to fetch submodules:
 ```
 git clone --recursive https://github.com/CouldntComeUpWithName/Flappy-Bird-Clone.git
-
 ```
+
 ### 2. Build with CMake
 Ensure CMake is installed, then run:
 
@@ -17,19 +17,17 @@ mkdir build
 cd build
 cmake ..
 ```
+
 ### 3. Compile the Project
 Build using your native toolchain or with CMake:
-
 ```
 cmake --build . --config Release
 
 ```
-4. Run the Game
-After a successful build, you'll find the executable in:
 
+### 4. Run the Game after a successful build, you'll find the executable in:
 ```
 bin/Release
-
 ```
 or run it directly from your IDE/Editor
 
