@@ -1,9 +1,36 @@
-# C/C++ Project Template with CMake Build System
-A simple and flexible starting point for **C/C++** projects using the **CMake** build system. This template provides a straightforward file structure and example code to help kickstart your project.
+# Flappy Bird Clone(C++20)
+A **FlappyBird** clone written in C++20. Clone, build, and play!
 
-Key Features:
-* Minimalistic project structure
-* CMake-based build system
-* Basic code examples for quick customization
+## Build Guidelines
+### 1. Clone the Repository
+Make sure to use --recursive to fetch submodules:
+```
+git clone --recursive https://github.com/CouldntComeUpWithName/Flappy-Bird-Clone.git
 
-> Note: This template is not exhaustive and may require further customization to fit your project's specific requirements.
+```
+### 2. Build with CMake
+Ensure CMake is installed, then run:
+
+```
+cd Flappy-Bird-Clone
+mkdir build
+cd build
+cmake ..
+```
+### 3. Compile the Project
+Build using your native toolchain or with CMake:
+
+```
+cmake --build . --config Release
+
+```
+4. Run the Game
+After a successful build, you'll find the executable in:
+
+```
+bin/Release
+
+```
+or run it directly from your IDE/Editor
+
+### 5. Enjoy! 🎮
