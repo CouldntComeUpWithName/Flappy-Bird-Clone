@@ -32,10 +32,19 @@ namespace flappy
       uint32_t screen_height = 800;
       std::string title = "flappy-clone";
     };
+
+    enum class state
+    {
+      waiting,
+      gameplay,
+      game_over,
+    };
     
   private:
-    bool m_running   = { true };
-    bool m_paused    = { false };
+    state m_state = state::waiting;
+    
+    bool m_running = { true };
+
     bool m_toggle_db_info = { false };
 
     uint32_t m_score = { 0U };

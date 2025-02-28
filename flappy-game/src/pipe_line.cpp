@@ -3,20 +3,19 @@
 
 void flappy::pipe_line::init()
 {
-  std::srand(std::time(nullptr));
-
-  m_pipeline.resize(m_nsections);
-
+  m_pipeline.resize(m_nsections, {});
+  
   for(int i = 0; i < m_nsections; i++)
   {
-    auto& [lower_pipe, upper_pipe] = gen_next_pair();
-    
-    lower_pipe.collider.w = m_common.size.w;
-    lower_pipe.collider.h = m_common.size.h;
-
-    upper_pipe.collider.w = m_common.size.w;
-    upper_pipe.collider.h = m_common.size.h;
+    float x = i * (m_common.size.w + m_section_fixed_step) + m_initial_xoffset;
+    gen_next_pair_at(x);
   }
+}
+
+void flappy::pipe_line::reset()
+{
+  m_first = 0;
+  init();
 }
 
 void flappy::pipe_line::update(float dt)
@@ -25,14 +24,7 @@ void flappy::pipe_line::update(float dt)
   
   if (lower_pipe.position.x + m_common.size.w < 0)
   {
-    auto& [lower, upper] = gen_next_pair();
-    
-    lower.collider.w = m_common.size.w;
-    lower.collider.h = m_common.size.h;
-
-    upper.collider.w = m_common.size.w;
-    upper.collider.h = m_common.size.h;
-    
+    gen_next_pair();
   }
 }
 
@@ -51,35 +43,41 @@ void flappy::pipe_line::render(const sdl::renderer& renderer)
   }
 }
 
-flappy::pipe_line::pipe_pair& flappy::pipe_line::gen_next_pair()
+void flappy::pipe_line::gen_next_pair()
 {
-  const uint32_t section_fixed_step = 200;
-  constexpr uint32_t pipe_hmin = 100;
-  static auto num = 0;
-  
-  // takes the first pipe, makes it the last one
-  auto& [lower_pipe, upper_pipe] = m_pipeline[m_first];
-  
   auto last_idx = (m_first + m_nsections - 1) % m_nsections;
   auto lastx = m_pipeline[last_idx].first.position.x;
-
-  lower_pipe.position.x = lastx + m_common.size.w + section_fixed_step;
-  lower_pipe.position.y = std::rand() % (((int)m_screen_space.h - pipe_hmin) - (m_entrance_height + pipe_hmin + 1)) + m_entrance_height + pipe_hmin + 1;
   
-  lower_pipe.collider.x = lower_pipe.position.x;
-  lower_pipe.collider.y = lower_pipe.position.y;
+  float x = lastx + m_common.size.w + m_section_fixed_step;
+  gen_next_pair_at(x);
+}
+
+void flappy::pipe_line::gen_next_pair_at(float x)
+{
+  auto& [lower_pipe, upper_pipe] = m_pipeline[m_first];
+  
+  lower_pipe.position.x = x;
+  lower_pipe.position.y = std::rand() % (((int)m_screen_space.h - m_pipe_hmin) - 
+    (m_entrance_height + m_pipe_hmin + 1)) + m_entrance_height + m_pipe_hmin + 1;
+  
+  lower_pipe.collider = {
+    .x = lower_pipe.position.x,
+    .y = lower_pipe.position.y,
+    .w = m_common.size.w,
+    .h = m_common.size.h
+  };
 
   upper_pipe.position.x = lower_pipe.position.x;
-  
   upper_pipe.position.y = lower_pipe.position.y - m_entrance_height - m_common.size.h;
 
-  upper_pipe.collider.x = upper_pipe.position.x;
-  upper_pipe.collider.y = upper_pipe.position.y;
-
-  auto idx = m_first;
+  upper_pipe.collider = {
+    .x = upper_pipe.position.x,
+    .y = upper_pipe.position.y,
+    .w = m_common.size.w,
+    .h = m_common.size.h
+  };
 
   m_first = ((m_first + 1) % m_nsections);
-  return m_pipeline[idx];
 }
 
 void flappy::pipe_line::render_pipe(const sdl::renderer& renderer, const pipe& pipe)

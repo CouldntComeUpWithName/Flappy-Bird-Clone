@@ -14,6 +14,8 @@ namespace flappy
 
 flappy::game::game()
 {
+  std::srand(std::time(nullptr));
+  
   assert(SDL_Init(SDL_INIT_VIDEO));
   
   m_main_window = sdl::window { 
@@ -84,16 +86,6 @@ void flappy::game::run()
 
 void flappy::game::poll_events()
 {
-  // TODO: probably move event handling here
-}
-
-uint8_t draw_color[4] = {};
-
-void flappy::game::update(float dt)
-{
-  static float up_force = 0.f;
-  static bool flapping = false;
-  
   SDL_Event event;
   while (SDL_PollEvent(&event))
   {
@@ -103,16 +95,12 @@ void flappy::game::update(float dt)
       m_running = false;
       break;
     case SDL_EVENT_MOUSE_BUTTON_DOWN:
-      flapping = true;
+      m_state = state::gameplay;
       break;
     case SDL_EVENT_MOUSE_BUTTON_UP:
       break;
     case SDL_EVENT_KEY_DOWN:
     {
-      if (event.key.scancode == SDL_SCANCODE_ESCAPE)
-      {
-        m_paused = !m_paused;
-      }
       if (event.key.scancode == SDL_SCANCODE_D)
       {
         m_toggle_db_info ^= true; // showing off
@@ -125,12 +113,20 @@ void flappy::game::update(float dt)
       break;
     }
   }
+}
 
-  if (!m_paused)
+void flappy::game::update(float dt)
+{
+  
+  // move the environment by x-axis with -m_bird.velocity.x component
+  // so that it gives the impression that the bird is actually moving
+  
+  using enum state;
+  switch(m_state) 
   {
-    // move the environment by x-axis with -m_bird.velocity.x component
-    // so that it gives the impression that the bird is actually moving
-
+  case waiting:
+    break;
+  case gameplay:
     m_pipeline.update(dt);
 
     for(auto& [lower_pipe, upper_pipe] : m_pipeline)
@@ -147,13 +143,16 @@ void flappy::game::update(float dt)
       if (physics::collides(m_bird.collider, lower_pipe.collider)
         || physics::collides(m_bird.collider, upper_pipe.collider))
       {
-        // TODO: implement game over
+        m_state = state::game_over;
       }
     }
+    break;
+  case game_over:
+    m_pipeline.reset();
+    m_state = waiting;
+    break;
+  };
 
-  //score update
-
-  }
 }
 
 void flappy::game::render()
@@ -174,16 +173,17 @@ void flappy::game::render()
   m_pipeline.render(m_renderer);
   
   SDL_RenderTexture(m_renderer.get(), m_bird.sprite.texture, &m_bird.sprite.rect, &dest);
+  
+  if(m_state == state::game_over)
+  {
+    //TODO: render game over menu
+  }
 
   if (m_toggle_db_info)
   {
     render_deb_info();
   }
   
-  if (m_paused)
-  {
-    // draw the pause menu here
-  }
   // draw the score after
   
   SDL_RenderPresent(m_renderer.get());
@@ -194,26 +194,24 @@ void flappy::game::render_deb_info()
   SDL_Color color{ 255, 0, 255, 255 };
   SDL_SetRenderDrawColor(m_renderer.get(), color.r, color.g, color.b, color.a);
 
-  if(m_paused)
+  SDL_FRect bird_boundary = {
+    m_bird.position.x,
+    m_bird.position.y,
+    m_bird.collider.w,
+    m_bird.collider.h,
+  };
+  
+  SDL_RenderRect(m_renderer.get(), &bird_boundary);
+  
+  for (const auto& [lower, upper] : m_pipeline)
+  {
+    SDL_RenderRect(m_renderer.get(), &lower.collider);
+    SDL_RenderRect(m_renderer.get(), &upper.collider);
+  }
+
+  if(m_state == state::game_over)
   {
     //TODO: render the button clickable areas
-  }
-  else
-  {
-    SDL_FRect bird_boundary = {
-      m_bird.position.x,
-      m_bird.position.y,
-      m_bird.collider.w,
-      m_bird.collider.h,
-    };
-    
-    SDL_RenderRect(m_renderer.get(), &bird_boundary);
-    
-    for (const auto& [lower, upper] : m_pipeline)
-    {
-      SDL_RenderRect(m_renderer.get(), &lower.collider);
-      SDL_RenderRect(m_renderer.get(), &upper.collider);
-    }
   }
   
 }

@@ -28,7 +28,8 @@ namespace flappy
     auto end() { return m_pipeline.end(); }
   
   private:
-    pipe_pair& gen_next_pair();
+    void gen_next_pair();
+    void gen_next_pair_at(float x);
 
     void render_pipe(const sdl::renderer&, const pipe&);
     void render_pipe_flipped(const sdl::renderer&, const pipe& pipe);
@@ -41,6 +42,9 @@ namespace flappy
     };
 
   private:
+    uint32_t m_section_fixed_step  = 200u;
+    uint32_t m_initial_xoffset     = 1000u;
+    uint32_t m_pipe_hmin           = 100u;
     pixel_t m_entrance_height = 200u;
     uint32_t m_nsections      = 4;
     uint64_t m_first          = 0;
