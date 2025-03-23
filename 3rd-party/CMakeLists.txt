@@ -10,12 +10,23 @@ FetchContent_Declare(
 
 FetchContent_MakeAvailable(SDL)
 
-get_scoped_target_list(scoped_targets)
+# get_scoped_target_list(scoped_targets)
 
-foreach(target IN LISTS scoped_targets)
-  if(TARGET ${target})
-    set_target_properties( ${target} PROPERTIES 
-      FOLDER "Deps"
-      RUNTIME_OUTPUT_DIRECTORY "${CMAKE_SOURCE_DIR}/bin/$<CONFIG>" )
-  endif()
-endforeach()
+# if(MSVC OR XCODE)
+#   foreach(target IN LISTS scoped_targets)
+#     if(TARGET ${target})
+      
+#       set(folder_tree "Deps")
+#       get_target_property(folder ${target} FOLDER)
+
+#       if(folder)
+#         set(folder_tree "${folder_tree}/${folder}")
+#       endif()
+      
+#       set_target_properties(${target} PROPERTIES 
+#         FOLDER "${folder_tree}"
+#         RUNTIME_OUTPUT_DIRECTORY "${CMAKE_SOURCE_DIR}/bin/$<CONFIG>" )
+
+#     endif()
+#   endforeach()
+# endif()

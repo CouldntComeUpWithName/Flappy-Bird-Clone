@@ -9,7 +9,7 @@ namespace flappy
 {
   // this is so fucked up, rearrangement is needed immediately
   
-  // comprises the all essential components
+  // comprises all the essential components
   struct basic_entity
   {
     glm::vec2 position;

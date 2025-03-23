@@ -38,7 +38,10 @@ namespace flappy
     struct pipe_common 
     {
       sdl::texture* texture = nullptr;
-      SDL_FRect        size = { .x = 0, .y = 0, .w = 100, .h = 500 };
+      SDL_FRect        size = { 
+        .x = 0,   .y = 0, 
+        .w = 100, .h = 500 
+      };
     };
 
   private:

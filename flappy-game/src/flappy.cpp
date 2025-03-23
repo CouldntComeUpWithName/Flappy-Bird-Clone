@@ -38,13 +38,13 @@ flappy::game::game()
 void flappy::game::load_assets()
 {
   m_bird.sprite.texture = texture_manager::load(texture_type::BIRD_SHEET, 
-     load_texture(m_renderer, "../../flappy-game/res/Birds.png")).get();
+     load_texture(m_renderer, "../../flappy-game/res/textures/Birds.png")).get();
   
   m_background.sprite.texture = texture_manager::load(texture_type::VANILLA_BACKGROUND,
-    load_texture(m_renderer, "../../flappy-game/res/default-bg-day.png")).get();
+    load_texture(m_renderer, "../../flappy-game/res/textures/default-bg-day.png")).get();
   
   m_pipeline.pipe_texture(texture_manager::load(texture_type::VANILLA_PIPE,
-      load_texture(m_renderer, "../../flappy-game/res/pipe-green.png")));
+      load_texture(m_renderer, "../../flappy-game/res/textures/pipe-green.png")));
 }
 
 void flappy::game::init()
@@ -72,14 +72,11 @@ void flappy::game::init()
 
 void flappy::game::run()
 {
-  SDL_FRect r1 = { 100.0f, 100.0f, 50.0f, 50.0f };
-  SDL_FRect r2 = { 120.0f, 120.0f, 50.0f, 50.0f };
-
   while (m_running) 
   {
-    float dt = 1.f / 60;
+    float fixed_timestep = 1.f / 60;
     poll_events();
-    update(dt);
+    update(fixed_timestep);
     render();
   }
 }
@@ -95,15 +92,16 @@ void flappy::game::poll_events()
       m_running = false;
       break;
     case SDL_EVENT_MOUSE_BUTTON_DOWN:
-      m_state = state::gameplay;
       break;
     case SDL_EVENT_MOUSE_BUTTON_UP:
+      m_state = state::gameplay;
+      flap();
       break;
     case SDL_EVENT_KEY_DOWN:
     {
       if (event.key.scancode == SDL_SCANCODE_D)
       {
-        m_toggle_db_info ^= true; // showing off
+        m_toggle_db_info ^= true;
       }
       break;
     }
@@ -117,42 +115,42 @@ void flappy::game::poll_events()
 
 void flappy::game::update(float dt)
 {
-  
-  // move the environment by x-axis with -m_bird.velocity.x component
-  // so that it gives the impression that the bird is actually moving
-  
-  using enum state;
   switch(m_state) 
   {
+    using enum state;
   case waiting:
     break;
   case gameplay:
-    m_pipeline.update(dt);
-
-    for(auto& [lower_pipe, upper_pipe] : m_pipeline)
-    {
-      lower_pipe.position.x += (-m_bird.velocity.x) * dt;
-      upper_pipe.position.x += (-m_bird.velocity.x) * dt;
-      
-      lower_pipe.collider.x = lower_pipe.position.x;
-      upper_pipe.collider.x = upper_pipe.position.x;
-    }
-    
-    for (auto& [lower_pipe, upper_pipe] : m_pipeline)
-    {
-      if (physics::collides(m_bird.collider, lower_pipe.collider)
-        || physics::collides(m_bird.collider, upper_pipe.collider))
-      {
-        m_state = state::game_over;
-      }
-    }
+    update_gameplay(dt);
     break;
   case game_over:
     m_pipeline.reset();
     m_state = waiting;
     break;
-  };
+  }
+}
 
+void flappy::game::update_gameplay(float dt)
+{
+  m_pipeline.update(dt);
+
+  for(auto& [lower_pipe, upper_pipe] : m_pipeline)
+  {
+    lower_pipe.position.x += (-m_bird.velocity.x) * dt;
+    upper_pipe.position.x += (-m_bird.velocity.x) * dt;
+    
+    lower_pipe.collider.x = lower_pipe.position.x;
+    upper_pipe.collider.x = upper_pipe.position.x;
+  }
+  
+  for (auto& [lower_pipe, upper_pipe] : m_pipeline)
+  {
+    if (physics::collides(m_bird.collider, lower_pipe.collider)
+      || physics::collides(m_bird.collider, upper_pipe.collider))
+    {
+      m_state = state::game_over;
+    }
+  }
 }
 
 void flappy::game::render()
@@ -214,6 +212,11 @@ void flappy::game::render_deb_info()
     //TODO: render the button clickable areas
   }
   
+}
+
+void flappy::game::flap()
+{
+  m_bird_up_force = 10.f;
 }
 
 flappy::game::~game()

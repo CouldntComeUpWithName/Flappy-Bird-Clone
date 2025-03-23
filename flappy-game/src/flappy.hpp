@@ -17,11 +17,14 @@ namespace flappy
     void init();
 
     void poll_events();
+
     void update(float);
-    void render();
+    void update_gameplay(float);
     
+    void render();
     void render_deb_info();
 
+    void flap();
   public:
     ~game();
 
@@ -53,6 +56,8 @@ namespace flappy
     sdl::renderer m_renderer  = { nullptr };
     
     bird m_bird             = {};
+    float m_bird_up_force   = 0.f;
+     
     renderable m_background = {};
     
     app_meta m_appdata = {};
